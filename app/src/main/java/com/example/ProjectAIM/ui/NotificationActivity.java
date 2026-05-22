@@ -1,4 +1,4 @@
-package com.example.ProjectAIM;
+package com.example.ProjectAIM.ui;
 
 import android.Manifest;
 import android.content.pm.PackageManager;
@@ -13,6 +13,7 @@ import androidx.annotation.ColorRes;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
 
+import com.example.ProjectAIM.R;
 import com.google.android.material.chip.Chip;
 import com.google.android.material.materialswitch.MaterialSwitch;
 

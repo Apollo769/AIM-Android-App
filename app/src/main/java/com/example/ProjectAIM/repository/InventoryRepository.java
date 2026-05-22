@@ -2,7 +2,7 @@ package com.example.ProjectAIM.repository;
 
 import android.content.Context;
 
-import com.example.ProjectAIM.DatabaseHelper;
+import com.example.ProjectAIM.data.DatabaseHelper;
 import com.example.ProjectAIM.model.Item;
 
 import java.util.ArrayList;

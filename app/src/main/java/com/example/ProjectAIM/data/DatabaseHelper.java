@@ -1,4 +1,4 @@
-package com.example.ProjectAIM;
+package com.example.ProjectAIM.data;
 
 import android.content.ContentValues;
 import android.content.Context;

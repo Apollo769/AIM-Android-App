@@ -1,4 +1,4 @@
-package com.example.ProjectAIM;
+package com.example.ProjectAIM.ui;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -14,6 +14,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.example.ProjectAIM.R;
 import com.example.ProjectAIM.model.Item;
 import com.example.ProjectAIM.viewmodel.InventoryViewModel;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
@@ -80,22 +81,26 @@ public class InventoryActivity extends AppCompatActivity {
             String qtyStr = inputQty.getText().toString().trim();
             String desc = inputDesc.getText().toString().trim();
 
-            // check for empty fields
-            if (name.isEmpty() || qtyStr.isEmpty()) {
+            // check for empty fields using ViewModel
+            if (!inventoryViewModel.isValidItemInput(name, qtyStr)) {
                 Toast.makeText(this, "Please enter a name and quantity.", Toast.LENGTH_SHORT).show();
                 return;
             }
 
-            // convert quantity and add item through ViewModel
-            int qty = Integer.parseInt(qtyStr);
-            inventoryViewModel.addItem(name, qty, desc);
+            try {
+                // convert quantity and add item through ViewModel
+                int qty = inventoryViewModel.parseQuantity(qtyStr);
+                inventoryViewModel.addItem(name, qty, desc);
 
-            // refresh recycler view
-            itemList.clear();
-            itemList.addAll(inventoryViewModel.getItemList());
-            adapter.notifyItemInserted(itemList.size() - 1);
+                // refresh recycler view
+                itemList.clear();
+                itemList.addAll(inventoryViewModel.getItemList());
+                adapter.notifyItemInserted(itemList.size() - 1);
 
-            dialog.dismiss();
+                dialog.dismiss();
+            } catch (NumberFormatException e) {
+                Toast.makeText(this, "Please enter a valid quantity.", Toast.LENGTH_SHORT).show();
+            }
         });
 
         // show the dialog and make it use the full screen width for better layout

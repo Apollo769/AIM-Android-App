@@ -1,4 +1,4 @@
-package com.example.ProjectAIM;
+package com.example.ProjectAIM.ui;
 
 import android.view.LayoutInflater;
 import android.view.View;
@@ -11,6 +11,7 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.example.ProjectAIM.R;
 import com.example.ProjectAIM.model.Item;
 import com.example.ProjectAIM.viewmodel.InventoryViewModel;
 

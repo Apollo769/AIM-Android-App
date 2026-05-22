@@ -19,5 +19,5 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "CS360 Project Inventory App"
+rootProject.name = "A.I.M - Inventory App"
 include ':app'

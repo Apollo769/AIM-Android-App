@@ -27,6 +27,16 @@ public class InventoryViewModel {
         itemList = repository.getAllItems();
     }
 
+    // Checks if the item name and quantity fields are valid
+    public boolean isValidItemInput(String name, String quantity) {
+        return !name.isEmpty() && !quantity.isEmpty();
+    }
+
+    // Converts quantity text into an integer
+    public int parseQuantity(String quantity) {
+        return Integer.parseInt(quantity);
+    }
+
     // Adds a new item and refreshes the inventory list
     public void addItem(String name, int quantity, String description) {
         repository.addItem(name, quantity, description);

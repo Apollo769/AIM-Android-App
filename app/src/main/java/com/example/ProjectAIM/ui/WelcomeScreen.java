@@ -1,4 +1,4 @@
-package com.example.ProjectAIM;
+package com.example.ProjectAIM.ui;
 
 import android.content.Intent;
 import android.database.Cursor;
@@ -10,6 +10,8 @@ import android.widget.EditText;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
+
+import com.example.ProjectAIM.R;
 
 public class WelcomeScreen extends AppCompatActivity {
 
