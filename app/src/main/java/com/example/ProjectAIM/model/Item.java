@@ -1,13 +1,15 @@
 package com.example.ProjectAIM.model;
 
-// Represents a single item in the inventory list
+/**
+ * Model for a single inventory item.
+ * Stores item data separately from UI and database logic so the app can pass inventory records between layers.
+ */
 public class Item {
-    private final int id;           // unique ID for this item
-    private final String name;      // item name
-    private int quantity;           // how many are in stock
-    private final String description; // optional notes or details
+    private final int id;
+    private final String name;
+    private int quantity;
+    private final String description;
 
-    // builds a new item object
     public Item(int id, String name, int quantity, String description) {
         this.id = id;
         this.name = name;
@@ -15,10 +17,14 @@ public class Item {
         this.description = description;
     }
 
-    // getters and setter
+    // Getters and Setters
     public int getId() { return id; }
+
     public String getName() { return name; }
+
     public int getQuantity() { return quantity; }
+
     public String getDescription() { return description; }
+
     public void setQuantity(int quantity) { this.quantity = quantity; }
 }

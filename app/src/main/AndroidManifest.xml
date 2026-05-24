@@ -18,13 +18,13 @@
         android:theme="@style/Theme.ProjectAIM">
 
         <activity
-            android:name=".ui.NotificationActivity"
+            android:name=".view.NotificationActivity"
             android:exported="false"/>
         <activity
-            android:name=".ui.InventoryActivity"
+            android:name=".view.InventoryActivity"
             android:exported="false" />
         <activity
-            android:name=".ui.WelcomeScreen"
+            android:name=".view.WelcomeScreen"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

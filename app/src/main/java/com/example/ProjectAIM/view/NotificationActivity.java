@@ -1,4 +1,4 @@
-package com.example.ProjectAIM.ui;
+package com.example.ProjectAIM.view;
 
 import android.Manifest;
 import android.content.pm.PackageManager;
@@ -17,26 +17,31 @@ import com.example.ProjectAIM.R;
 import com.google.android.material.chip.Chip;
 import com.google.android.material.materialswitch.MaterialSwitch;
 
+/**
+ * View for notification settings.
+ * Manages SMS permission and saved toggle state so the app only enables SMS alerts
+ * when the user has chosen to allow them.
+ */
 public class NotificationActivity extends AppCompatActivity {
 
-    // shared preference keys for saving SMS toggle state
+    // Preference keys keep the user's SMS setting available after the app closes
     private static final String PREFS = "notif_prefs";
     private static final String PREF_SMS_ENABLED = "pref_sms_enabled";
 
-    private Chip chipPermissionState;      // shows SMS permission status
-    private MaterialSwitch switchEnableSms; // switch to enable or disable SMS
+    private Chip chipPermissionState;
+    private MaterialSwitch switchEnableSms;
 
-    // handles requesting SMS permission at runtime
+    // Handles the runtime SMS permission result after Android shows the permission prompt
     private final ActivityResultLauncher<String> smsPermissionLauncher =
             registerForActivityResult(new ActivityResultContracts.RequestPermission(), granted -> {
                 if (granted) {
-                    // user allowed permission
+                    // Keep the switch, saved preference, and permission display aligned after approval
                     switchEnableSms.setChecked(true);
                     setPrefSmsEnabled(true);
                     updatePermissionUI(true);
                     Toast.makeText(this, "SMS permission granted", Toast.LENGTH_SHORT).show();
                 } else {
-                    // user denied permission
+                    // Turn SMS back off when permission is denied so the UI does not show a false enabled state
                     switchEnableSms.setChecked(false);
                     setPrefSmsEnabled(false);
                     updatePermissionUI(false);
@@ -49,73 +54,74 @@ public class NotificationActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_notification);
 
-        // link UI elements
         chipPermissionState = findViewById(R.id.chipPermissionState);
         switchEnableSms = findViewById(R.id.switchEnableSms);
         Button buttonBackToInventory = findViewById(R.id.buttonBackToInventory);
 
-        // check if SMS was enabled before and if permission is granted
-        boolean userWantsSms = getPrefSmsEnabled();
-        boolean hasPerm = hasSmsPermission();
+        // Sync the UI with both the saved preference and Android's real permission state
+        syncPermissionUI();
 
-        // update switch and chip based on saved state
-        switchEnableSms.setChecked(userWantsSms);
-        updatePermissionUI(userWantsSms && hasPerm);
-
-        // when switch is toggled on or off
+        // Permission is requested only when the user actively enables SMS alerts
         switchEnableSms.setOnCheckedChangeListener((CompoundButton buttonView, boolean isChecked) -> {
             setPrefSmsEnabled(isChecked);
+
             if (isChecked) {
-                // if enabled, make sure permission is granted
                 if (!hasSmsPermission()) {
-                    // request permission if not already granted
                     smsPermissionLauncher.launch(Manifest.permission.SEND_SMS);
                 } else {
-                    // already granted, update chip UI
                     updatePermissionUI(true);
                 }
             } else {
-                // switch turned off, mark permission as inactive
                 updatePermissionUI(false);
             }
         });
 
-        // go back to inventory screen
-        buttonBackToInventory.setOnClickListener(v -> finish());
+        buttonBackToInventory.setOnClickListener(view -> finish());
     }
 
     @Override
     protected void onResume() {
         super.onResume();
-        // refresh UI in case permission changed while activity wasn’t active
-        boolean userWantsSms = getPrefSmsEnabled();
-        boolean hasPerm = hasSmsPermission();
-        switchEnableSms.setChecked(userWantsSms);
-        updatePermissionUI(userWantsSms && hasPerm);
+
+        // Recheck permission in case the user changed SMS access in system settings
+        syncPermissionUI();
     }
 
-    // checks if SEND_SMS permission is granted
+    // Keeps the screen accurate when saved preference and actual Android permission differ
+    private void syncPermissionUI() {
+        boolean userWantsSms = getPrefSmsEnabled();
+        boolean hasSmsPermission = hasSmsPermission();
+
+        switchEnableSms.setChecked(userWantsSms);
+        updatePermissionUI(userWantsSms && hasSmsPermission);
+    }
+
+    // Checks Android's current permission state instead of relying only on saved app preference
     private boolean hasSmsPermission() {
         return ContextCompat.checkSelfPermission(this, Manifest.permission.SEND_SMS)
                 == PackageManager.PERMISSION_GRANTED;
     }
 
-    // updates chip color and text based on permission state
+    // Keeps the permission chip aligned with whether SMS alerts can actually be used
     private void updatePermissionUI(boolean active) {
         chipPermissionState.setText(active
                 ? getString(R.string.permission_granted)
                 : getString(R.string.permission_denied));
-        @ColorRes int bg = active ? android.R.color.holo_green_light : android.R.color.holo_red_light;
-        chipPermissionState.setChipBackgroundColorResource(bg);
+
+        @ColorRes int backgroundColor = active
+                ? android.R.color.holo_green_light
+                : android.R.color.holo_red_light;
+
+        chipPermissionState.setChipBackgroundColorResource(backgroundColor);
         chipPermissionState.setTextColor(ContextCompat.getColor(this, android.R.color.white));
     }
 
-    // get saved preference for SMS toggle
+    // Reads the user's saved SMS choice so the setting persists between app sessions
     private boolean getPrefSmsEnabled() {
         return getSharedPreferences(PREFS, MODE_PRIVATE).getBoolean(PREF_SMS_ENABLED, false);
     }
 
-    // save current SMS toggle state
+    // Saves the user's SMS choice separately from Android's actual permission state
     private void setPrefSmsEnabled(boolean enabled) {
         getSharedPreferences(PREFS, MODE_PRIVATE)
                 .edit()
