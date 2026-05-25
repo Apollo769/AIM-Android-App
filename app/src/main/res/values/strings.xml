@@ -1,15 +1,16 @@
 <resources>
     <string name="app_name">ProjectAIM</string>
 
-    <string name="app_title">Welcome to A.I.M!</string>
-    <string name="welcome_tagline">One-stop solution for\nAgile Inventory Management</string>
+    <string name="app_title">A.I.M.</string>
+    <string name="welcome_tagline">Track. Manage. Stay on Target.</string>
     <string name="screenTitleNotifications">Notifications</string>
     <string name="screen_title">Inventory</string>
+    <string name="aim_logo_description">AIM inventory tracking logo</string>
 
     <string name="email_label">Email</string>
     <string name="password_label">Password</string>
     <string name="sign_in">Sign In</string>
-    <string name="create_account">Create Account</string>
+    <string name="sign_up">Sign Up</string>
     <string name="hint_email">Enter email</string>
     <string name="hint_password">Enter password</string>
     <string name="hint_add_quantity">Quantity</string>

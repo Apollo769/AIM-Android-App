@@ -8,9 +8,9 @@
 
     <TextView
         android:id="@+id/appTitle"
-        android:layout_width="wrap_content"
+        android:layout_width="260dp"
         android:layout_height="wrap_content"
-        android:layout_marginTop="56dp"
+        android:layout_marginTop="32dp"
         android:background="@drawable/rounded_corner3"
         android:elevation="20dp"
         android:fontFamily="monospace"
@@ -27,20 +27,34 @@
 
     <TextView
         android:id="@+id/appTagline"
-        android:layout_width="wrap_content"
+        android:layout_width="380dp"
         android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
+        android:layout_marginTop="6dp"
         android:background="@drawable/rounded_corner3"
+        android:contentDescription="@string/welcome_tagline"
         android:elevation="10dp"
+        android:ellipsize="end"
         android:fontFamily="monospace"
         android:gravity="center"
-        android:paddingHorizontal="16dp"
-        android:paddingVertical="8dp"
+        android:maxLines="1"
+        android:paddingHorizontal="8dp"
+        android:paddingVertical="6dp"
         android:text="@string/welcome_tagline"
         android:textColor="@color/black"
-        android:textSize="16sp"
+        android:textSize="18sp"
         android:textStyle="italic|bold"
         app:layout_constraintTop_toBottomOf="@id/appTitle"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+
+    <ImageView
+        android:id="@+id/imageAimLogo"
+        android:layout_width="260dp"
+        android:layout_height="260dp"
+        android:layout_marginTop="30dp"
+        android:contentDescription="@string/aim_logo_description"
+        android:src="@drawable/aim_icon"
+        app:layout_constraintTop_toBottomOf="@id/appTagline"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />
 
@@ -49,7 +63,7 @@
         android:layout_width="110dp"
         android:layout_height="48dp"
         android:layout_marginStart="26dp"
-        android:layout_marginTop="84dp"
+        android:layout_marginTop="36dp"
         android:layout_marginEnd="8dp"
         android:background="@drawable/rounded_corner3"
         android:elevation="20dp"
@@ -59,8 +73,8 @@
         android:textColor="@color/black"
         android:textSize="18sp"
         android:textStyle="bold"
+        app:layout_constraintTop_toBottomOf="@id/imageAimLogo"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/appTagline"
         app:layout_constraintEnd_toStartOf="@id/editUsername"
         app:layout_constraintHorizontal_chainStyle="packed" />
 
@@ -74,7 +88,7 @@
         android:ems="10"
         android:fontFamily="monospace"
         android:hint="@string/hint_email"
-        android:inputType="text"
+        android:inputType="textEmailAddress"
         android:padding="10dp"
         android:textColor="@color/black"
         android:textSize="18sp"
@@ -87,7 +101,7 @@
         android:layout_width="110dp"
         android:layout_height="48dp"
         android:layout_marginStart="26dp"
-        android:layout_marginTop="56dp"
+        android:layout_marginTop="32dp"
         android:layout_marginEnd="8dp"
         android:background="@drawable/rounded_corner3"
         android:elevation="20dp"
@@ -97,8 +111,8 @@
         android:textColor="@color/black"
         android:textSize="18sp"
         android:textStyle="bold"
-        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/textEmail"
+        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toStartOf="@id/editPassword"
         app:layout_constraintHorizontal_chainStyle="packed" />
 
@@ -122,34 +136,37 @@
 
     <Button
         android:id="@+id/buttonSignIn"
-        android:layout_width="wrap_content"
+        android:layout_width="130dp"
         android:layout_height="wrap_content"
-        android:layout_marginTop="56dp"
+        android:layout_marginTop="64dp"
+        android:layout_marginEnd="10dp"
         android:background="@drawable/rounded_corner"
         android:fontFamily="monospace"
         android:text="@string/sign_in"
         android:textColor="@color/black"
-        android:textSize="18sp"
+        android:textSize="16sp"
         android:textStyle="bold"
-        app:backgroundTint="@null"
+        app:backgroundTint="@color/green"
         app:layout_constraintTop_toBottomOf="@id/textPassword"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent" />
+        app:layout_constraintEnd_toStartOf="@id/buttonCreateAccount"
+        app:layout_constraintHorizontal_chainStyle="packed" />
 
     <Button
         android:id="@+id/buttonCreateAccount"
-        android:layout_width="wrap_content"
+        android:layout_width="130dp"
         android:layout_height="wrap_content"
-        android:layout_marginTop="20dp"
+        android:layout_marginStart="10dp"
+        android:layout_marginTop="64dp"
         android:background="@drawable/rounded_corner"
         android:fontFamily="monospace"
-        android:text="@string/create_account"
+        android:text="@string/sign_up"
         android:textColor="@color/black"
-        android:textSize="18sp"
+        android:textSize="16sp"
         android:textStyle="bold"
-        app:backgroundTint="@null"
-        app:layout_constraintTop_toBottomOf="@id/buttonSignIn"
-        app:layout_constraintStart_toStartOf="parent"
+        app:backgroundTint="@color/cyan"
+        app:layout_constraintTop_toBottomOf="@id/textPassword"
+        app:layout_constraintStart_toEndOf="@id/buttonSignIn"
         app:layout_constraintEnd_toEndOf="parent" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
