@@ -4,7 +4,6 @@ import android.Manifest;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.widget.Button;
-import android.widget.CompoundButton;
 import android.widget.Toast;
 
 import androidx.activity.result.ActivityResultLauncher;
@@ -62,7 +61,22 @@ public class NotificationActivity extends AppCompatActivity {
         syncPermissionUI();
 
         // Permission is requested only when the user actively enables SMS alerts
-        switchEnableSms.setOnCheckedChangeListener((CompoundButton buttonView, boolean isChecked) -> {
+        configureSmsToggle();
+
+        buttonBackToInventory.setOnClickListener(view -> finish());
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+
+        // Recheck permission in case the user changed SMS access in system settings
+        syncPermissionUI();
+    }
+
+    // Handles enabling and disabling SMS notifications from the settings switch
+    private void configureSmsToggle() {
+        switchEnableSms.setOnCheckedChangeListener((buttonView, isChecked) -> {
             setPrefSmsEnabled(isChecked);
 
             if (isChecked) {
@@ -75,16 +89,6 @@ public class NotificationActivity extends AppCompatActivity {
                 updatePermissionUI(false);
             }
         });
-
-        buttonBackToInventory.setOnClickListener(view -> finish());
-    }
-
-    @Override
-    protected void onResume() {
-        super.onResume();
-
-        // Recheck permission in case the user changed SMS access in system settings
-        syncPermissionUI();
     }
 
     // Keeps the screen accurate when saved preference and actual Android permission differ

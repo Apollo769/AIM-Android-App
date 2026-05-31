@@ -3,56 +3,99 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/rootNotifications"
-    tools:theme="@style/Theme.ProjectAIM"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@drawable/background_gradient">
+    android:background="@drawable/background_gradient"
+    android:fitsSystemWindows="true"
+    tools:theme="@style/Theme.ProjectAIM">
 
-    <TextView
-        android:id="@+id/titleNotifications"
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/topBar"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="12dp"
         android:background="@drawable/background_gradient2"
-        android:fontFamily="monospace"
-        android:padding="16dp"
-        android:text="@string/screenTitleNotifications"
-        android:textColor="@color/black"
-        android:textSize="20sp"
-        android:textStyle="bold"
-        android:gravity="center"
-        app:layout_constraintBottom_toTopOf="@+id/cardPermission"
-        app:layout_constraintEnd_toEndOf="parent"
+        android:paddingTop="12dp"
+        app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintEnd_toEndOf="parent">
+
+        <TextView
+            android:id="@+id/titleNotifications"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:fontFamily="monospace"
+            android:padding="20dp"
+            android:text="@string/screenTitleNotifications"
+            android:textColor="@color/black"
+            android:textSize="20sp"
+            android:textStyle="bold"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <LinearLayout
+        android:id="@+id/smsControlRow"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:background="@color/white"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:paddingHorizontal="12dp"
+        android:paddingVertical="8dp"
+        app:layout_constraintTop_toBottomOf="@id/topBar"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
+
+        <TextView
+            android:id="@+id/textEnableSms"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:fontFamily="monospace"
+            android:gravity="center"
+            android:text="@string/enableNotif"
+            android:textColor="@color/black"
+            android:textSize="18sp" />
+
+        <com.google.android.material.materialswitch.MaterialSwitch
+            android:id="@+id/switchEnableSms"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:contentDescription="@string/enableNotif"
+            app:useMaterialThemeColors="true" />
+
+    </LinearLayout>
 
     <com.google.android.material.card.MaterialCardView
         android:id="@+id/cardPermission"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginStart="16dp"
-        android:layout_marginTop="12dp"
+        android:layout_marginTop="24dp"
         android:layout_marginEnd="16dp"
         app:cardBackgroundColor="@android:color/white"
         app:cardElevation="4dp"
         app:strokeWidth="1dp"
-        app:layout_constraintTop_toBottomOf="@id/titleNotifications"
+        app:layout_constraintTop_toBottomOf="@id/smsControlRow"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent">
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:gravity="center_vertical"
             android:orientation="horizontal"
-            android:padding="12dp"
-            android:gravity="center_vertical">
+            android:padding="12dp">
 
             <ImageView
                 android:id="@+id/iconBell"
                 android:layout_width="36dp"
                 android:layout_height="36dp"
-                android:src="@drawable/baseline_circle_notifications_24_2"
-                android:contentDescription="@string/desc_notifications" />
+                android:contentDescription="@string/desc_notifications"
+                android:src="@drawable/baseline_circle_notifications_24_2" />
 
             <LinearLayout
                 android:layout_width="0dp"
@@ -66,20 +109,21 @@
                     android:id="@+id/textPermissionTitle"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="@string/sms_permission"
-                    android:textStyle="bold"
-                    android:textColor="@color/black"
                     android:fontFamily="monospace"
-                    android:textSize="18sp" />
+                    android:text="@string/sms_permission"
+                    android:textColor="@color/black"
+                    android:textSize="18sp"
+                    android:textStyle="bold" />
 
                 <TextView
                     android:id="@+id/textPermissionSubtitle"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:fontFamily="monospace"
                     android:text="@string/require"
                     android:textColor="@color/black"
-                    android:fontFamily="monospace"
                     android:textSize="16sp" />
+
             </LinearLayout>
 
             <com.google.android.material.chip.Chip
@@ -87,26 +131,12 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/permission_y_n"
-                app:chipBackgroundColor="@android:color/holo_red_light"
-                android:textColor="@android:color/white" />
-        </LinearLayout>
-    </com.google.android.material.card.MaterialCardView>
+                android:textColor="@android:color/white"
+                app:chipBackgroundColor="@android:color/holo_red_dark" />
 
-    <com.google.android.material.materialswitch.MaterialSwitch
-        android:id="@+id/switchEnableSms"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="20dp"
-        android:text="@string/enableNotif"
-        android:textColor="@color/black"
-        android:background="@color/white"
-        android:fontFamily="monospace"
-        android:textSize="18sp"
-        android:padding="12dp"
-        app:useMaterialThemeColors="true"
-        app:layout_constraintTop_toBottomOf="@id/cardPermission"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent" />
+        </LinearLayout>
+
+    </com.google.android.material.card.MaterialCardView>
 
     <Button
         android:id="@+id/buttonBackToInventory"
@@ -119,7 +149,7 @@
         android:textSize="18sp"
         android:textStyle="bold"
         app:backgroundTint="@null"
-        app:layout_constraintTop_toBottomOf="@id/switchEnableSms"
+        app:layout_constraintTop_toBottomOf="@id/cardPermission"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />
 

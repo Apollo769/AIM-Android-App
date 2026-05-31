@@ -9,6 +9,8 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.AlertDialog;
+import androidx.recyclerview.widget.DiffUtil;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.ProjectAIM.R;
@@ -23,12 +25,34 @@ import java.util.ArrayList;
  */
 public class InventoryAdapter extends RecyclerView.Adapter<InventoryAdapter.ViewHolder> {
 
+    public interface OnInventoryChangedListener {
+        void onInventoryChanged();
+    }
+
     private final ArrayList<Item> items;
     private final InventoryViewModel inventoryViewModel;
+    private final OnInventoryChangedListener inventoryChangedListener;
 
-    public InventoryAdapter(ArrayList<Item> items, InventoryViewModel inventoryViewModel) {
-        this.items = items;
+    public InventoryAdapter(
+            ArrayList<Item> items,
+            InventoryViewModel inventoryViewModel,
+            OnInventoryChangedListener inventoryChangedListener
+    ) {
+        this.items = new ArrayList<>(items);
         this.inventoryViewModel = inventoryViewModel;
+        this.inventoryChangedListener = inventoryChangedListener;
+    }
+
+    // Replaces the displayed list using DiffUtil so RecyclerView only updates changed rows
+    public void updateItems(ArrayList<Item> updatedItems) {
+        DiffUtil.DiffResult diffResult = DiffUtil.calculateDiff(
+                new ItemDiffCallback(items, updatedItems)
+        );
+
+        items.clear();
+        items.addAll(updatedItems);
+
+        diffResult.dispatchUpdatesTo(this);
     }
 
     @NonNull
@@ -42,47 +66,90 @@ public class InventoryAdapter extends RecyclerView.Adapter<InventoryAdapter.View
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         Item item = items.get(position);
+
         holder.textItemName.setText(item.getName());
         holder.editItemQty.setText(String.valueOf(item.getQuantity()));
 
-        // Validates row edits here because quantity changes happen directly inside each RecyclerView row
-        holder.editItemQty.setOnFocusChangeListener((view, hasFocus) -> {
-            if (!hasFocus) {
-                String quantityInput = holder.editItemQty.getText().toString().trim();
+        configureDescriptionButton(holder, item);
+        configureQuantityUpdate(holder, item);
+        configureDeleteButton(holder);
+    }
 
-                if (quantityInput.isEmpty()) {
-                    Toast.makeText(view.getContext(), "Quantity cannot be empty.", Toast.LENGTH_SHORT).show();
+    // Shows the description icon only when the item has saved details to display
+    private void configureDescriptionButton(ViewHolder holder, Item item) {
+        String itemDescription = item.getDescription();
+
+        if (itemDescription == null || itemDescription.trim().isEmpty()) {
+            holder.buttonDescription.setVisibility(View.GONE);
+            holder.buttonDescription.setOnClickListener(null);
+            return;
+        }
+
+        holder.buttonDescription.setVisibility(View.VISIBLE);
+        holder.buttonDescription.setOnClickListener(view ->
+                showDescriptionDialog(view, item.getName(), itemDescription));
+    }
+
+    // Validates row edits here because quantity changes happen directly inside each RecyclerView row
+    private void configureQuantityUpdate(ViewHolder holder, Item item) {
+        holder.editItemQty.setOnFocusChangeListener((view, hasFocus) -> {
+            if (hasFocus) {
+                return;
+            }
+
+            String quantityInput = holder.editItemQty.getText().toString().trim();
+
+            if (quantityInput.isEmpty()) {
+                showToast(view, "Quantity cannot be empty.");
+                return;
+            }
+
+            try {
+                int newQuantity = Integer.parseInt(quantityInput);
+
+                if (newQuantity < 0) {
+                    showToast(view, "Quantity cannot be negative.");
                     return;
                 }
 
-                try {
-                    int newQuantity = Integer.parseInt(quantityInput);
-
-                    if (newQuantity < 0) {
-                        Toast.makeText(view.getContext(), "Quantity cannot be negative.", Toast.LENGTH_SHORT).show();
-                        return;
-                    }
-
-                    item.setQuantity(newQuantity);
-                    inventoryViewModel.updateQuantity(item.getId(), newQuantity);
-                    Toast.makeText(view.getContext(), "Quantity updated", Toast.LENGTH_SHORT).show();
-                } catch (NumberFormatException exception) {
-                    Toast.makeText(view.getContext(), "Please enter a valid quantity.", Toast.LENGTH_SHORT).show();
-                }
+                item.setQuantity(newQuantity);
+                inventoryViewModel.updateQuantity(item.getId(), newQuantity);
+                inventoryChangedListener.onInventoryChanged();
+                showToast(view, "Quantity updated");
+            } catch (NumberFormatException exception) {
+                showToast(view, "Please enter a valid quantity.");
             }
         });
+    }
 
-        // Gets the current adapter position so the correct item is removed even if the list changes
+    // Gets the current adapter position so the correct item is removed even if the list changes
+    private void configureDeleteButton(ViewHolder holder) {
         holder.buttonDelete.setOnClickListener(view -> {
             int positionToRemove = holder.getBindingAdapterPosition();
-            if (positionToRemove == RecyclerView.NO_POSITION) return;
+
+            if (positionToRemove == RecyclerView.NO_POSITION) {
+                return;
+            }
 
             Item itemToRemove = items.get(positionToRemove);
             inventoryViewModel.deleteItem(itemToRemove.getId());
             items.remove(positionToRemove);
             notifyItemRemoved(positionToRemove);
-            Toast.makeText(view.getContext(), "Item deleted", Toast.LENGTH_SHORT).show();
+            inventoryChangedListener.onInventoryChanged();
+            showToast(view, "Item deleted");
         });
+    }
+
+    private void showDescriptionDialog(View view, String itemName, String itemDescription) {
+        new AlertDialog.Builder(view.getContext())
+                .setTitle(itemName)
+                .setMessage(itemDescription)
+                .setPositiveButton("Back", null)
+                .show();
+    }
+
+    private void showToast(View view, String message) {
+        Toast.makeText(view.getContext(), message, Toast.LENGTH_SHORT).show();
     }
 
     @Override
@@ -91,17 +158,66 @@ public class InventoryAdapter extends RecyclerView.Adapter<InventoryAdapter.View
     }
 
     /**
+     * Compares old and new inventory lists so RecyclerView can update only the rows that changed.
+     */
+    private static class ItemDiffCallback extends DiffUtil.Callback {
+        private final ArrayList<Item> oldItems;
+        private final ArrayList<Item> newItems;
+
+        ItemDiffCallback(ArrayList<Item> oldItems, ArrayList<Item> newItems) {
+            this.oldItems = oldItems;
+            this.newItems = newItems;
+        }
+
+        @Override
+        public int getOldListSize() {
+            return oldItems.size();
+        }
+
+        @Override
+        public int getNewListSize() {
+            return newItems.size();
+        }
+
+        @Override
+        public boolean areItemsTheSame(int oldItemPosition, int newItemPosition) {
+            return oldItems.get(oldItemPosition).getId()
+                    == newItems.get(newItemPosition).getId();
+        }
+
+        @Override
+        public boolean areContentsTheSame(int oldItemPosition, int newItemPosition) {
+            Item oldItem = oldItems.get(oldItemPosition);
+            Item newItem = newItems.get(newItemPosition);
+
+            return hasSameContent(oldItem, newItem);
+        }
+
+        private boolean hasSameContent(Item oldItem, Item newItem) {
+            return oldItem.getQuantity() == newItem.getQuantity()
+                    && textMatches(oldItem.getName(), newItem.getName())
+                    && textMatches(oldItem.getDescription(), newItem.getDescription());
+        }
+
+        private boolean textMatches(String oldText, String newText) {
+            return String.valueOf(oldText).equals(String.valueOf(newText));
+        }
+    }
+
+    /**
      * Stores row view references so RecyclerView can reuse item layouts without repeatedly finding views.
      */
     public static class ViewHolder extends RecyclerView.ViewHolder {
-        TextView textItemName;
-        EditText editItemQty;
-        ImageButton buttonDelete;
+        final TextView textItemName;
+        final EditText editItemQty;
+        final ImageButton buttonDescription;
+        final ImageButton buttonDelete;
 
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
             textItemName = itemView.findViewById(R.id.textItemName);
             editItemQty = itemView.findViewById(R.id.editItemQty);
+            buttonDescription = itemView.findViewById(R.id.buttonDescription);
             buttonDelete = itemView.findViewById(R.id.buttonDelete);
         }
     }

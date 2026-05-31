@@ -2,12 +2,15 @@ package com.example.ProjectAIM.view;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
+import android.widget.PopupMenu;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -28,33 +31,160 @@ import java.util.ArrayList;
  */
 public class InventoryActivity extends AppCompatActivity {
 
-    private ArrayList<Item> itemList;
+    private static final String OPTION_SHOW_ALL = "Show All Items";
+    private static final String OPTION_SORT_NAME = "Sort by Name";
+    private static final String OPTION_QUANTITY_LOW_HIGH = "Quantity Low to High";
+    private static final String OPTION_QUANTITY_HIGH_LOW = "Quantity High to Low";
+    private static final String OPTION_LOW_STOCK = "Low Stock Only";
+
+    private RecyclerView recyclerView;
+    private FloatingActionButton fabAddItem;
+    private ImageButton fabNotifications;
+    private ImageButton buttonInventoryOptions;
+    private EditText searchInventory;
+
     private InventoryAdapter adapter;
     private InventoryViewModel inventoryViewModel;
+    private String currentInventoryOption = OPTION_SHOW_ALL;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_inventory);
 
-        // Connect layout controls used by this screen
-        RecyclerView recyclerView = findViewById(R.id.recyclerInventory);
-        FloatingActionButton fabAddItem = findViewById(R.id.fabAddItem);
-        ImageButton fabNotifications = findViewById(R.id.fabNotifications);
+        connectViews();
+        setupRecyclerView();
+        setupSearch();
+        setupInventoryOptions();
+        setupButtonListeners();
+    }
 
-        // Set up inventory data through the ViewModel instead of direct database access
+    private void connectViews() {
+        recyclerView = findViewById(R.id.recyclerInventory);
+        fabAddItem = findViewById(R.id.fabAddItem);
+        fabNotifications = findViewById(R.id.fabNotifications);
+        buttonInventoryOptions = findViewById(R.id.buttonInventoryOptions);
+        searchInventory = findViewById(R.id.searchInventory);
+    }
+
+    private void setupRecyclerView() {
         inventoryViewModel = new InventoryViewModel(this);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
-        itemList = inventoryViewModel.getItemList();
 
-        // Connect the RecyclerView to the adapter so inventory items display on screen
-        adapter = new InventoryAdapter(itemList, inventoryViewModel);
+        ArrayList<Item> itemList = inventoryViewModel.getItemList();
+
+        adapter = new InventoryAdapter(itemList, inventoryViewModel, this::refreshCurrentInventoryView);
         recyclerView.setAdapter(adapter);
+    }
 
+    private void setupSearch() {
+        searchInventory.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence text, int start, int count, int after) {
+            }
+
+            @Override
+            public void onTextChanged(CharSequence text, int start, int before, int count) {
+                currentInventoryOption = OPTION_SHOW_ALL;
+                adapter.updateItems(inventoryViewModel.searchItems(text.toString().trim()));
+            }
+
+            @Override
+            public void afterTextChanged(Editable editable) {
+            }
+        });
+    }
+
+    private void setupInventoryOptions() {
+        buttonInventoryOptions.setOnClickListener(this::showInventoryOptionsMenu);
+    }
+
+    private void setupButtonListeners() {
         fabAddItem.setOnClickListener(view -> showAddItemDialog());
 
         fabNotifications.setOnClickListener(view ->
                 startActivity(new Intent(this, NotificationActivity.class)));
+    }
+
+    /**
+     * Shows inventory options that demonstrate search, sorting, filtering, and low-stock prioritization.
+     */
+    private void showInventoryOptionsMenu(View anchorView) {
+        PopupMenu popupMenu = new PopupMenu(this, anchorView);
+
+        popupMenu.getMenu().add(OPTION_SHOW_ALL);
+        popupMenu.getMenu().add(OPTION_SORT_NAME);
+        popupMenu.getMenu().add(OPTION_QUANTITY_LOW_HIGH);
+        popupMenu.getMenu().add(OPTION_QUANTITY_HIGH_LOW);
+        popupMenu.getMenu().add(OPTION_LOW_STOCK);
+
+        popupMenu.setOnMenuItemClickListener(menuItem -> {
+            String option = String.valueOf(menuItem.getTitle());
+            currentInventoryOption = option;
+
+            switch (option) {
+                case OPTION_SHOW_ALL:
+                    searchInventory.setText("");
+                    adapter.updateItems(inventoryViewModel.getItemList());
+                    return true;
+
+                case OPTION_SORT_NAME:
+                    adapter.updateItems(inventoryViewModel.sortItemsByName());
+                    return true;
+
+                case OPTION_QUANTITY_LOW_HIGH:
+                    adapter.updateItems(inventoryViewModel.sortItemsByQuantityLowToHigh());
+                    return true;
+
+                case OPTION_QUANTITY_HIGH_LOW:
+                    adapter.updateItems(inventoryViewModel.sortItemsByQuantityHighToLow());
+                    return true;
+
+                case OPTION_LOW_STOCK:
+                    adapter.updateItems(inventoryViewModel.filterLowStockItems());
+                    return true;
+
+                default:
+                    return false;
+            }
+        });
+
+        popupMenu.show();
+    }
+
+    /**
+     * Reapplies the active search, sort, or filter after item data changes.
+     */
+    private void refreshCurrentInventoryView() {
+        String searchText = searchInventory.getText().toString().trim();
+
+        if (!searchText.isEmpty()) {
+            adapter.updateItems(inventoryViewModel.searchItems(searchText));
+            return;
+        }
+
+        switch (currentInventoryOption) {
+            case OPTION_SORT_NAME:
+                adapter.updateItems(inventoryViewModel.sortItemsByName());
+                break;
+
+            case OPTION_QUANTITY_LOW_HIGH:
+                adapter.updateItems(inventoryViewModel.sortItemsByQuantityLowToHigh());
+                break;
+
+            case OPTION_QUANTITY_HIGH_LOW:
+                adapter.updateItems(inventoryViewModel.sortItemsByQuantityHighToLow());
+                break;
+
+            case OPTION_LOW_STOCK:
+                adapter.updateItems(inventoryViewModel.filterLowStockItems());
+                break;
+
+            case OPTION_SHOW_ALL:
+            default:
+                adapter.updateItems(inventoryViewModel.getItemList());
+                break;
+        }
     }
 
     /**
@@ -64,7 +194,6 @@ public class InventoryActivity extends AppCompatActivity {
     private void showAddItemDialog() {
         View dialogView = LayoutInflater.from(this).inflate(R.layout.add_item, null, false);
 
-        // Connect dialog inputs used to collect new item details
         EditText inputName = dialogView.findViewById(R.id.inputName);
         EditText inputQty  = dialogView.findViewById(R.id.inputQty);
         EditText inputDesc = dialogView.findViewById(R.id.inputDesc);
@@ -83,16 +212,12 @@ public class InventoryActivity extends AppCompatActivity {
             String quantityInput = inputQty.getText().toString().trim();
             String itemDescription = inputDesc.getText().toString().trim();
 
-            // Use the ViewModel to validate and save item data before updating the UI
             if (!inventoryViewModel.addItemIfValid(itemName, quantityInput, itemDescription)) {
                 Toast.makeText(this, "Please enter a valid name and quantity.", Toast.LENGTH_SHORT).show();
                 return;
             }
 
-            // Refresh the local list because RecyclerView does not automatically see ViewModel changes
-            itemList.clear();
-            itemList.addAll(inventoryViewModel.getItemList());
-            adapter.notifyItemInserted(itemList.size() - 1);
+            refreshCurrentInventoryView();
 
             dialog.dismiss();
         });
