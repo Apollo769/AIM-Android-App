@@ -18,7 +18,6 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.ProjectAIM.R;
-import com.example.ProjectAIM.model.Item;
 import com.example.ProjectAIM.viewmodel.InventoryViewModel;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
@@ -57,6 +56,7 @@ public class InventoryActivity extends AppCompatActivity {
         setupSearch();
         setupInventoryOptions();
         setupButtonListeners();
+        loadInventoryItems();
     }
 
     private void connectViews() {
@@ -68,13 +68,15 @@ public class InventoryActivity extends AppCompatActivity {
     }
 
     private void setupRecyclerView() {
-        inventoryViewModel = new InventoryViewModel(this);
+        inventoryViewModel = new InventoryViewModel();
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
 
-        ArrayList<Item> itemList = inventoryViewModel.getItemList();
-
-        adapter = new InventoryAdapter(itemList, inventoryViewModel, this::refreshCurrentInventoryView);
+        adapter = new InventoryAdapter(new ArrayList<>(), inventoryViewModel, this::refreshCurrentInventoryView);
         recyclerView.setAdapter(adapter);
+    }
+
+    private void loadInventoryItems() {
+        inventoryViewModel.loadItems(this::refreshCurrentInventoryView);
     }
 
     private void setupSearch() {
@@ -86,7 +88,7 @@ public class InventoryActivity extends AppCompatActivity {
             @Override
             public void onTextChanged(CharSequence text, int start, int before, int count) {
                 currentInventoryOption = OPTION_SHOW_ALL;
-                adapter.updateItems(inventoryViewModel.searchItems(text.toString().trim()));
+                refreshCurrentInventoryView();
             }
 
             @Override
@@ -119,34 +121,14 @@ public class InventoryActivity extends AppCompatActivity {
         popupMenu.getMenu().add(OPTION_LOW_STOCK);
 
         popupMenu.setOnMenuItemClickListener(menuItem -> {
-            String option = String.valueOf(menuItem.getTitle());
-            currentInventoryOption = option;
+            currentInventoryOption = String.valueOf(menuItem.getTitle());
 
-            switch (option) {
-                case OPTION_SHOW_ALL:
-                    searchInventory.setText("");
-                    adapter.updateItems(inventoryViewModel.getItemList());
-                    return true;
-
-                case OPTION_SORT_NAME:
-                    adapter.updateItems(inventoryViewModel.sortItemsByName());
-                    return true;
-
-                case OPTION_QUANTITY_LOW_HIGH:
-                    adapter.updateItems(inventoryViewModel.sortItemsByQuantityLowToHigh());
-                    return true;
-
-                case OPTION_QUANTITY_HIGH_LOW:
-                    adapter.updateItems(inventoryViewModel.sortItemsByQuantityHighToLow());
-                    return true;
-
-                case OPTION_LOW_STOCK:
-                    adapter.updateItems(inventoryViewModel.filterLowStockItems());
-                    return true;
-
-                default:
-                    return false;
+            if (currentInventoryOption.equals(OPTION_SHOW_ALL)) {
+                searchInventory.setText("");
             }
+
+            refreshCurrentInventoryView();
+            return true;
         });
 
         popupMenu.show();
@@ -212,19 +194,28 @@ public class InventoryActivity extends AppCompatActivity {
             String quantityInput = inputQty.getText().toString().trim();
             String itemDescription = inputDesc.getText().toString().trim();
 
-            if (!inventoryViewModel.addItemIfValid(itemName, quantityInput, itemDescription)) {
+            boolean itemAdded = inventoryViewModel.addItemIfValid(
+                    itemName,
+                    quantityInput,
+                    itemDescription,
+                    this::refreshCurrentInventoryView
+            );
+
+            if (!itemAdded) {
                 Toast.makeText(this, "Please enter a valid name and quantity.", Toast.LENGTH_SHORT).show();
                 return;
             }
-
-            refreshCurrentInventoryView();
 
             dialog.dismiss();
         });
 
         dialog.show();
+
         if (dialog.getWindow() != null) {
-            dialog.getWindow().setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+            dialog.getWindow().setLayout(
+                    ViewGroup.LayoutParams.MATCH_PARENT,
+                    ViewGroup.LayoutParams.WRAP_CONTENT
+            );
         }
     }
 }

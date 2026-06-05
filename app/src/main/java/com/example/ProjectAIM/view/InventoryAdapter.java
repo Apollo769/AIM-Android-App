@@ -113,16 +113,19 @@ public class InventoryAdapter extends RecyclerView.Adapter<InventoryAdapter.View
                 }
 
                 item.setQuantity(newQuantity);
-                inventoryViewModel.updateQuantity(item.getId(), newQuantity);
-                inventoryChangedListener.onInventoryChanged();
-                showToast(view, "Quantity updated");
+
+                inventoryViewModel.updateQuantity(
+                        item.getId(),
+                        newQuantity,
+                        () -> handleQuantityUpdated(view)
+                );
             } catch (NumberFormatException exception) {
                 showToast(view, "Please enter a valid quantity.");
             }
         });
     }
 
-    // Gets the current adapter position so the correct item is removed even if the list changes
+    // Gets the current adapter position so the correct item is deleted even if the list changes
     private void configureDeleteButton(ViewHolder holder) {
         holder.buttonDelete.setOnClickListener(view -> {
             int positionToRemove = holder.getBindingAdapterPosition();
@@ -132,12 +135,22 @@ public class InventoryAdapter extends RecyclerView.Adapter<InventoryAdapter.View
             }
 
             Item itemToRemove = items.get(positionToRemove);
-            inventoryViewModel.deleteItem(itemToRemove.getId());
-            items.remove(positionToRemove);
-            notifyItemRemoved(positionToRemove);
-            inventoryChangedListener.onInventoryChanged();
-            showToast(view, "Item deleted");
+
+            inventoryViewModel.deleteItem(
+                    itemToRemove.getId(),
+                    () -> handleItemDeleted(view)
+            );
         });
+    }
+
+    private void handleQuantityUpdated(View view) {
+        inventoryChangedListener.onInventoryChanged();
+        showToast(view, "Quantity updated");
+    }
+
+    private void handleItemDeleted(View view) {
+        inventoryChangedListener.onInventoryChanged();
+        showToast(view, "Item deleted");
     }
 
     private void showDescriptionDialog(View view, String itemName, String itemDescription) {
@@ -181,8 +194,9 @@ public class InventoryAdapter extends RecyclerView.Adapter<InventoryAdapter.View
 
         @Override
         public boolean areItemsTheSame(int oldItemPosition, int newItemPosition) {
-            return oldItems.get(oldItemPosition).getId()
-                    == newItems.get(newItemPosition).getId();
+            return oldItems.get(oldItemPosition)
+                    .getId()
+                    .equals(newItems.get(newItemPosition).getId());
         }
 
         @Override

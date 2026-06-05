@@ -57,7 +57,7 @@ public class WelcomeScreen extends AppCompatActivity {
                     if (task.isSuccessful()) {
                         Toast.makeText(this, "Welcome!", Toast.LENGTH_SHORT).show();
 
-                        // Close this screen so the user cannot return to login with the back button
+                        // Close this screen so the user cannot return to log in with the back button
                         startActivity(new Intent(this, InventoryActivity.class));
                         finish();
                     } else {

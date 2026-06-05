@@ -1,7 +1,5 @@
 package com.example.ProjectAIM.viewmodel;
 
-import android.content.Context;
-
 import com.example.ProjectAIM.model.Item;
 import com.example.ProjectAIM.repository.InventoryRepository;
 
@@ -18,25 +16,36 @@ public class InventoryViewModel {
     private ArrayList<Item> itemList;
 
     private static final int LOW_STOCK_THRESHOLD = 5;
+    private static final int MAX_NAME_LENGTH = 100;
+    private static final int MAX_DESCRIPTION_LENGTH = 500;
 
-    // Connects inventory screen logic to the repository layer instead of the View
-    public InventoryViewModel(Context context) {
-        repository = new InventoryRepository(context);
-        itemList = repository.getAllItems();
+    public interface InventoryUpdateCallback {
+        void onInventoryUpdated();
+    }
+
+    // Connects inventory screen logic to the Firestore-backed repository layer
+    public InventoryViewModel() {
+        repository = new InventoryRepository();
+        itemList = new ArrayList<>();
     }
 
     public ArrayList<Item> getItemList() {
         return itemList;
     }
 
-    // Refreshes the local list because repository changes do not update it automatically
-    public void loadItems() {
-        itemList = repository.getAllItems();
+    // Loads inventory items from Firestore and updates the local working list
+    public void loadItems(InventoryUpdateCallback callback) {
+        repository.getAllItems(items -> updateLocalItems(items, callback));
     }
 
-    // Validates and parses input before allowing new item data to reach the database
-    public boolean addItemIfValid(String itemName, String quantityInput, String itemDescription) {
-        if (itemName.isEmpty() || quantityInput.isEmpty()) {
+    // Validates and parses input before allowing new item data to reach Firestore
+    public boolean addItemIfValid(
+            String itemName,
+            String quantityInput,
+            String itemDescription,
+            InventoryUpdateCallback callback
+    ) {
+        if (hasInvalidItemInput(itemName, quantityInput, itemDescription)) {
             return false;
         }
 
@@ -47,12 +56,24 @@ public class InventoryViewModel {
                 return false;
             }
 
-            repository.addItem(itemName, itemQuantity, itemDescription);
-            loadItems();
+            repository.addItem(itemName, itemQuantity, itemDescription,
+                    items -> updateLocalItems(items, callback));
+
             return true;
         } catch (NumberFormatException exception) {
             return false;
         }
+    }
+
+    private boolean hasInvalidItemInput(
+            String itemName,
+            String quantityInput,
+            String itemDescription
+    ) {
+        return itemName.isEmpty()
+                || quantityInput.isEmpty()
+                || itemName.length() > MAX_NAME_LENGTH
+                || itemDescription.length() > MAX_DESCRIPTION_LENGTH;
     }
 
     // Searches inventory by item name so users can quickly find matching items
@@ -116,15 +137,18 @@ public class InventoryViewModel {
         return lowStockItems;
     }
 
-    // Routes quantity changes through the repository to keep database access out of the View
-    public void updateQuantity(int id, int newQuantity) {
-        repository.updateQuantity(id, newQuantity);
-        loadItems();
+    // Routes quantity changes through the repository to keep Firestore access out of the View
+    public void updateQuantity(String id, int newQuantity, InventoryUpdateCallback callback) {
+        repository.updateQuantity(id, newQuantity, items -> updateLocalItems(items, callback));
     }
 
-    // Routes delete requests through the repository to keep database access out of the View
-    public void deleteItem(int id) {
-        repository.deleteItem(id);
-        loadItems();
+    // Routes delete requests through the repository to keep Firestore access out of the View
+    public void deleteItem(String id, InventoryUpdateCallback callback) {
+        repository.deleteItem(id, items -> updateLocalItems(items, callback));
+    }
+
+    private void updateLocalItems(ArrayList<Item> items, InventoryUpdateCallback callback) {
+        itemList = items;
+        callback.onInventoryUpdated();
     }
 }
