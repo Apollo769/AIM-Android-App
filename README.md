@@ -1,4 +1,4 @@
-# CS-499-Capstone-ePortfolio - Category One Enhancement Narrative
+# Category One Enhancement Narrative
 
 ## Artifact Overview
 &emsp; The artifact I have selected for the Category One enhancement is my inventory management application called A.I.M, which stands for Agile Inventory Management. This artifact is an Android mobile application that I originally created in CS-360: Mobile Architecture and Programming. The application allows users to sign in and create accounts, manage inventory items by updating and deleting items as well as adding items, and manage SMS notification permissions. For this enhancement, I focused on this category by improving the architecture, structure, maintainability, documentation, validation, and credential authentication in the application.
