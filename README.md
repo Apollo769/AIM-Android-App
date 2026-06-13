@@ -2,7 +2,7 @@
 
 ## Overview
 
-&emsp; A.I.M. (Agile Inventory Management) is an Android inventory management application originally developed in CS-360: Mobile Architecture and Programming and later enhanced as part of the CS-499 Computer Science Capstone. The application allows users to create accounts, securely authenticate, manage inventory items, and track inventory data through a cloud-based database.
+A.I.M. (Agile Inventory Management) is an Android inventory management application originally developed in CS-360: Mobile Architecture and Programming and later enhanced as part of the CS-499 Computer Science Capstone. The application allows users to create accounts, securely authenticate, manage inventory items, and track inventory data through a cloud-based database.
 
 ## Features
 
@@ -26,15 +26,15 @@
 
 ## Architecture
 
-&emsp; The application follows the Model-View-ViewModel (MVVM) architectural pattern and utilizes a repository layer to separate business logic, user interface components, and database operations. This structure improves maintainability, scalability, and separation of concerns.
+The application follows the Model-View-ViewModel (MVVM) architectural pattern and utilizes a repository layer to separate business logic, user interface components, and database operations. This structure improves maintainability, scalability, and separation of concerns.
 
 ## Algorithms & Data Structures
 
-&emsp; The application utilizes ArrayLists as its primary data structure for inventory management. Search, sorting, and filtering functionality were implemented to improve inventory organization and usability. RecyclerView performance was enhanced through DiffUtil to update only modified rows instead of refreshing the entire inventory list.
+The application utilizes ArrayLists as its primary data structure for inventory management. Search, sorting, and filtering functionality were implemented to improve inventory organization and usability. RecyclerView performance was enhanced through DiffUtil to update only modified rows instead of refreshing the entire inventory list.
 
 ## Database & Authentication
 
-&emsp; Firebase Authentication is used to securely manage user accounts and sign-in functionality. Inventory data is stored within Firebase Firestore and isolated by authenticated user accounts through Firestore security rules to ensure users can only access their own inventory records.
+Firebase Authentication is used to securely manage user accounts and sign-in functionality. Inventory data is stored within Firebase Firestore and isolated by authenticated user accounts through Firestore security rules to ensure users can only access their own inventory records.
 
 ## Installation
 
@@ -45,8 +45,8 @@
 
 ## Future Enhancements
 
-&emsp; Potential future enhancements include password reset functionality, user sign-out options, expanded inventory reporting, advanced search capabilities, and additional inventory notification features.
+Potential future enhancements include password reset functionality, user sign-out options, expanded inventory reporting, advanced search capabilities, and additional inventory notification features.
 
 ## Link to ePortfolio
 
-&emsp; Additional project documentation, enhancement narratives, screenshots, and reflections can be found within the accompanying ePortfolio.
+Additional project documentation, enhancement narratives, screenshots, and reflections can be found within the accompanying ePortfolio.
