@@ -48,6 +48,8 @@ public class NotificationActivity extends AppCompatActivity {
                 }
             });
 
+    // Initializes notification settings and restores the user's
+    // saved SMS preference state
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -66,6 +68,8 @@ public class NotificationActivity extends AppCompatActivity {
         buttonBackToInventory.setOnClickListener(view -> finish());
     }
 
+    // Revalidates permission status because Android settings can
+    // change while the application is not active
     @Override
     protected void onResume() {
         super.onResume();

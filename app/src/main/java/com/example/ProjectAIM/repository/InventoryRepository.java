@@ -39,6 +39,8 @@ public class InventoryRepository {
         auth = FirebaseAuth.getInstance();
     }
 
+    // Builds a user-specific Firestore path so inventory records
+    // remain isolated between authenticated accounts
     private CollectionReference getItemsCollection() {
         String userId = getCurrentUserId();
 
@@ -47,6 +49,8 @@ public class InventoryRepository {
                 .collection(COLLECTION_ITEMS);
     }
 
+    // Requires authentication before inventory access to prevent
+    // operations against shared or anonymous data
     private String getCurrentUserId() {
         FirebaseUser currentUser = auth.getCurrentUser();
 
@@ -116,6 +120,8 @@ public class InventoryRepository {
                         Log.e(TAG, "Failed to delete inventory item.", exception));
     }
 
+    // Converts Firestore documents into Item objects so cloud data
+    // can be used throughout the MVVM layers
     private Item createItemFromDocument(QueryDocumentSnapshot document) {
         String id = document.getId();
         String name = document.getString(FIELD_NAME);
@@ -129,6 +135,8 @@ public class InventoryRepository {
         return new Item(id, name, quantity, description);
     }
 
+    // Maps item fields into Firestore-compatible key/value pairs
+    // before inventory records are stored in the cloud database
     private Map<String, Object> createItemData(
             String name,
             int quantity,

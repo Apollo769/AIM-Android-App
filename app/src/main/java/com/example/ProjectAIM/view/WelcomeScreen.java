@@ -42,6 +42,8 @@ public class WelcomeScreen extends AppCompatActivity {
         buttonCreateAccount.setOnClickListener(this::createAccount);
     }
 
+    // Authenticates existing users before granting access to
+    // inventory features and cloud-stored data
     private void signIn(View view) {
         String email = editEmail.getText().toString().trim();
         String password = editPassword.getText().toString().trim();
@@ -66,6 +68,8 @@ public class WelcomeScreen extends AppCompatActivity {
                 });
     }
 
+    // Creates a new Firebase account so authentication can be
+    // managed without storing credentials locally
     private void createAccount(View view) {
         String email = editEmail.getText().toString().trim();
         String password = editPassword.getText().toString().trim();
@@ -92,7 +96,8 @@ public class WelcomeScreen extends AppCompatActivity {
                 });
     }
 
-    // Centralizes shared validation so sign-in and account creation follow the same input rules
+    // Applies shared credential validation rules so sign-in
+    // and account creation follow consistent requirements
     private boolean hasInvalidEmailPasswordInput(String email, String password) {
         if (email.isEmpty() || password.isEmpty()) {
             Toast.makeText(this, "Please enter email and password.", Toast.LENGTH_SHORT).show();

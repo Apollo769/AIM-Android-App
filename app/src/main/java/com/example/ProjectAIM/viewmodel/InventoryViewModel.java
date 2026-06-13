@@ -29,6 +29,8 @@ public class InventoryViewModel {
         itemList = new ArrayList<>();
     }
 
+    // Returns the current working inventory list used by search,
+    // sorting, filtering, and RecyclerView updates
     public ArrayList<Item> getItemList() {
         return itemList;
     }
@@ -65,6 +67,8 @@ public class InventoryViewModel {
         }
     }
 
+    // Applies inventory validation rules before database operations
+    // to prevent invalid records from reaching Firestore
     private boolean hasInvalidItemInput(
             String itemName,
             String quantityInput,
@@ -147,6 +151,8 @@ public class InventoryViewModel {
         repository.deleteItem(id, items -> updateLocalItems(items, callback));
     }
 
+    // Replaces the local working inventory list and notifies
+    // the UI that fresh data is available
     private void updateLocalItems(ArrayList<Item> items, InventoryUpdateCallback callback) {
         itemList = items;
         callback.onInventoryUpdated();

@@ -46,6 +46,8 @@ public class InventoryActivity extends AppCompatActivity {
     private InventoryViewModel inventoryViewModel;
     private String currentInventoryOption = OPTION_SHOW_ALL;
 
+    // Initializes screen components and loads inventory data
+    // before user interaction begins
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -59,6 +61,8 @@ public class InventoryActivity extends AppCompatActivity {
         loadInventoryItems();
     }
 
+    // Connects layout components so UI events can be routed
+    // through the Activity
     private void connectViews() {
         recyclerView = findViewById(R.id.recyclerInventory);
         fabAddItem = findViewById(R.id.fabAddItem);
@@ -67,6 +71,8 @@ public class InventoryActivity extends AppCompatActivity {
         searchInventory = findViewById(R.id.searchInventory);
     }
 
+    // Configures RecyclerView and adapter so inventory updates
+    // can be displayed through the MVVM workflow
     private void setupRecyclerView() {
         inventoryViewModel = new InventoryViewModel();
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
@@ -75,6 +81,8 @@ public class InventoryActivity extends AppCompatActivity {
         recyclerView.setAdapter(adapter);
     }
 
+    // Retrieves inventory data through the ViewModel so UI updates
+    // remain independent of Firestore operations
     private void loadInventoryItems() {
         inventoryViewModel.loadItems(this::refreshCurrentInventoryView);
     }

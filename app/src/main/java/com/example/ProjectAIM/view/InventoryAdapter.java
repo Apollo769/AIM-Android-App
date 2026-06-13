@@ -143,16 +143,22 @@ public class InventoryAdapter extends RecyclerView.Adapter<InventoryAdapter.View
         });
     }
 
+    // Refreshes the active inventory view after a successful
+    // quantity change so sorting and filtering remain accurate
     private void handleQuantityUpdated(View view) {
         inventoryChangedListener.onInventoryChanged();
         showToast(view, "Quantity updated");
     }
 
+    // Reapplies the current inventory view after deletion so
+    // displayed results remain synchronized with Firestore data
     private void handleItemDeleted(View view) {
         inventoryChangedListener.onInventoryChanged();
         showToast(view, "Item deleted");
     }
 
+    // Displays additional item details without expanding the
+    // inventory row layout.
     private void showDescriptionDialog(View view, String itemName, String itemDescription) {
         new AlertDialog.Builder(view.getContext())
                 .setTitle(itemName)
@@ -213,6 +219,8 @@ public class InventoryAdapter extends RecyclerView.Adapter<InventoryAdapter.View
                     && textMatches(oldItem.getDescription(), newItem.getDescription());
         }
 
+        // Normalizes null values before comparison so DiffUtil can
+        // safely detect content changes
         private boolean textMatches(String oldText, String newText) {
             return String.valueOf(oldText).equals(String.valueOf(newText));
         }

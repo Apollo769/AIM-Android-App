@@ -7,6 +7,9 @@ package com.example.ProjectAIM.model;
 public class Item {
     private final String id;
     private final String name;
+
+    // Quantity remains mutable so inventory updates can be reflected
+    // without recreating the entire item object.
     private int quantity;
     private final String description;
 
